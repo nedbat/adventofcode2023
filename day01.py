@@ -94,3 +94,6 @@ def test_sum_two_digits_part2():
 if __name__ == "__main__":
     total = sum_two_digits_part2(open("day01_input.txt"))
     print(f"Part 2: {total = }")
+
+# Clever way: replace "one" with "1ne", then overlaps will be replaced properly
+# and part 2 can be solved with part 1's code.
