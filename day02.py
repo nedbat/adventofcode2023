@@ -18,6 +18,9 @@ class Cubes:
     green: int = 0
     blue: int = 0
 
+    def power(self):
+        return self.red * self.green * self.blue
+
 
 @dataclass
 class Game:
@@ -64,3 +67,39 @@ def test_part1():
 if __name__ == "__main__":
     total = part1(open("day02_input.txt"))
     print(f"Part 1: {total = }")
+
+
+def fewest_cubes(game):
+    red = green = blue = 0
+    for handful in game.handfuls:
+        red = max(red, handful.red)
+        green = max(green, handful.green)
+        blue = max(blue, handful.blue)
+    return Cubes(red, green, blue)
+
+
+def test_fewest_cubes():
+    fewests = [fewest_cubes(game) for game in parse_games(TEST_INPUT)]
+    assert fewests == [
+        Cubes(red=4, green=2, blue=6),
+        Cubes(red=1, green=3, blue=4),
+        Cubes(red=20, green=13, blue=6),
+        Cubes(red=14, green=3, blue=15),
+        Cubes(red=6, green=3, blue=2),
+    ]
+
+
+def part2(lines):
+    total = 0
+    for game in parse_games(lines):
+        total += fewest_cubes(game).power()
+    return total
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 2286
+
+
+if __name__ == "__main__":
+    total = part2(open("day02_input.txt"))
+    print(f"Part 2: {total = }")
