@@ -110,8 +110,8 @@ def test_part1():
 
 
 if __name__ == "__main__":
-    total = part1(file_lines("day03_input.txt"))
-    print(f"Part 1: {total = }")
+    answer = part1(file_lines("day03_input.txt"))
+    print(f"Part 1: {answer = }")
 
 
 def gears(lines):
@@ -119,10 +119,10 @@ def gears(lines):
     stars = [(x, y) for x, y, s in find_symbols(lines) if s == "*"]
     for star in stars:
         adjacent_nums = []
-        # This loops over all the numbers, which is wasteful, but fast enough.
-        # Better would be to limit to the three rows where possible adjacent
-        # numbers might be.
+        possible_rows = {star[1] - 1, star[1], star[1] + 1}
         for num in numbers:
+            if num.y not in possible_rows:
+                continue
             if star in num.neighboring_locations():
                 adjacent_nums.append(num)
         if len(adjacent_nums) == 2:
@@ -142,5 +142,5 @@ def test_part2():
 
 
 if __name__ == "__main__":
-    total = part2(file_lines("day03_input.txt"))
-    print(f"Part 2: {total = }")
+    answer = part2(file_lines("day03_input.txt"))
+    print(f"Part 2: {answer = }")
