@@ -110,3 +110,35 @@ def test_part1():
 if __name__ == "__main__":
     total = part1(list(open("day03_input.txt")))
     print(f"Part 1: {total = }")
+
+
+def gears(lines):
+    numbers = list(find_numbers(lines))
+    stars = [(x, y) for x, y, s in find_symbols(lines) if s == "*"]
+    for star in stars:
+        adjacent_nums = []
+        # This loops over all the numbers, which is wasteful, but fast enough.
+        # Better would be to limit to the three rows where possible adjacent
+        # numbers might be.
+        for num in numbers:
+            if star in num.neighboring_locations():
+                adjacent_nums.append(num)
+        if len(adjacent_nums) == 2:
+            yield tuple(anum.num for anum in adjacent_nums)
+
+
+def test_gears():
+    assert list(gears(TEST_INPUT)) == [(467, 35), (755, 598)]
+
+
+def part2(lines):
+    return sum(g1 * g2 for g1, g2 in gears(lines))
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 467835
+
+
+if __name__ == "__main__":
+    total = part2(list(open("day03_input.txt")))
+    print(f"Part 2: {total = }")
