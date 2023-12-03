@@ -3,7 +3,9 @@
 import re
 from dataclasses import dataclass
 
-TEST_INPUT = """\
+from helpers import *
+
+TEST_INPUT = string_lines("""\
 467..114..
 ...*......
 ..35..633.
@@ -14,7 +16,7 @@ TEST_INPUT = """\
 ......755.
 ...$.*....
 .664.598..
-""".splitlines()
+""")
 
 
 @dataclass
@@ -108,7 +110,7 @@ def test_part1():
 
 
 if __name__ == "__main__":
-    total = part1(list(open("day03_input.txt")))
+    total = part1(file_lines("day03_input.txt"))
     print(f"Part 1: {total = }")
 
 
@@ -140,5 +142,5 @@ def test_part2():
 
 
 if __name__ == "__main__":
-    total = part2(list(open("day03_input.txt")))
+    total = part2(file_lines("day03_input.txt"))
     print(f"Part 2: {total = }")
