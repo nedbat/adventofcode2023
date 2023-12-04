@@ -33,12 +33,14 @@ class ScratchCard:
             have=set(map(int, have.split())),
         )
 
+    def matches(self):
+        return len(self.winning & self.have)
+
     def points(self):
-        matching = len(self.winning & self.have)
-        if matching == 0:
+        if self.matches() == 0:
             return 0
         else:
-            return 2 ** (matching - 1)
+            return 2 ** (self.matches() - 1)
 
 
 def test_parse():
@@ -61,10 +63,22 @@ if __name__ == "__main__":
     print(f"Part 1: {answer = }")
 
 
-# def part2(lines):
-#     ...
-#
-#
-# if __name__ == "__main__":
-#     answer = part2(file_lines("day04_input.txt"))
-#     print(f"Part 2: {answer = }")
+def part2(lines):
+    cards = [ScratchCard.parse(line) for line in lines]
+    counts = dict.fromkeys([c.id for c in cards], 1)
+    for card in cards:
+        id = card.id
+        num_cards = counts[id]
+        matches = card.matches()
+        for next_id in range(id + 1, id + matches + 1):
+            counts[next_id] += num_cards
+    return sum(counts.values())
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 30
+
+
+if __name__ == "__main__":
+    answer = part2(file_lines("day04_input.txt"))
+    print(f"Part 2: {answer = }")
