@@ -1,7 +1,10 @@
 # https://adventofcode.com/2023/day/05
 
+import itertools
 import re
 from dataclasses import dataclass
+
+import pytest
 
 from helpers import *
 
@@ -44,6 +47,10 @@ humidity-to-location map:
 )
 
 
+# Ranges of numbers are represented as a list of [(start, end), (start, end), ...]
+# End is not included, as with range().
+
+
 @dataclass
 class MapRange:
     dstart: int
@@ -57,20 +64,59 @@ class MapRange:
         return num - self.sstart + self.dstart
 
 
+# @pytest.mark.parametrize(
+#     "numbers, result",
+#     [
+#         ([(5, 15)], [(5, 10), (100, 105)]),
+#         ([(5, 25)], [(5, 10), (100, 110), (20, 25)]),
+#         ([(205, 215)], [(205, 215)]),
+#     ],
+# )
+# def test_map_numbers(numbers, result):
+#     map_range = MapRange(100, 10, 10)
+#     assert map_range.map_numbers(numbers) == result
+
+
 @dataclass
 class Map:
-    ranges: list[MapRange]
+    map_ranges: list[MapRange]
 
     def __getitem__(self, num):
-        for r in self.ranges:
+        for r in self.map_ranges:
             if num in r:
                 return r[num]
         else:
             return num
 
+    def map_numbers(self, numbers):
+        """Map a set of number ranges through this map, producing a new set of number ranges."""
+        to_map = numbers
+        result = set()
+        for map_range in self.map_ranges:
+            next_to_map = []
+            sstart = map_range.sstart
+            send = map_range.sstart + map_range.rlen
+            for start, end in to_map:
+                if start < sstart:
+                    # The portion of numbers less than the mapped range.
+                    next_to_map.append((start, min(end, sstart)))
+                if (send >= start) and (end >= sstart):
+                    # The ranges overlap.
+                    # https://nedbatchelder.com/blog/201310/range_overlap_in_two_compares.html
+                    nstart = max(start, sstart)
+                    nend = min(end, send)
+                    if nstart != nend:
+                        result.add((self[nstart], self[nend]))
+                if end > send:
+                    next_to_map.append((max(start, send), end))
+            to_map = next_to_map
+        result.update(to_map)
+        return result
+
+
 @dataclass
 class Almanac:
-    seeds: set[int]
+    seeds: list[int]
     maps: list[Map]
 
     def __getitem__(self, num):
@@ -86,7 +132,7 @@ def parse_almanac(lines):
     nmaps = 0
     for line in lines:
         if m := re.fullmatch("seeds: (.*)", line):
-            python.append(m.expand(r"seeds={\1},").replace(" ", ","))
+            python.append(m.expand(r"seeds=[\1],").replace(" ", ","))
             python.append("maps=[")
         elif m := re.search("map:$", line):
             if nmaps:
@@ -130,15 +176,21 @@ if __name__ == "__main__":
     print(f"Part 1: {answer = }")
 
 
-# def part2(lines):
-#     ...
-#
-#
-# def test_part2():
-#     assert part2(TEST_INPUT) == 123456
-#
-#
-#
-# if __name__ == "__main__":
-#     answer = part2(file_lines("day05_input.txt"))
-#     print(f"Part 2: {answer = }")
+def part2(lines):
+    almanac = parse_almanac(lines)
+    numbers = [(s, s+l) for s, l in itertools.batched(almanac.seeds, 2)]
+    for map in almanac.maps:
+        numbers = map.map_numbers(numbers)
+    print("len num:", len(numbers))
+    print(sorted(numbers))
+    smallest = min(numbers)[0]
+    return smallest
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 46
+
+
+if __name__ == "__main__":
+    answer = part2(file_lines("day05_input.txt"))
+    print(f"Part 2: {answer = }")
