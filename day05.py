@@ -64,19 +64,6 @@ class MapRange:
         return num - self.sstart + self.dstart
 
 
-# @pytest.mark.parametrize(
-#     "numbers, result",
-#     [
-#         ([(5, 15)], [(5, 10), (100, 105)]),
-#         ([(5, 25)], [(5, 10), (100, 110), (20, 25)]),
-#         ([(205, 215)], [(205, 215)]),
-#     ],
-# )
-# def test_map_numbers(numbers, result):
-#     map_range = MapRange(100, 10, 10)
-#     assert map_range.map_numbers(numbers) == result
-
-
 @dataclass
 class Map:
     map_ranges: list[MapRange]
@@ -106,7 +93,8 @@ class Map:
                     nstart = max(start, sstart)
                     nend = min(end, send)
                     if nstart != nend:
-                        result.add((self[nstart], self[nend]))
+                        mapped = (map_range[nstart], map_range[nend])
+                        result.add(mapped)
                 if end > send:
                     next_to_map.append((max(start, send), end))
             to_map = next_to_map
@@ -181,8 +169,6 @@ def part2(lines):
     numbers = [(s, s+l) for s, l in itertools.batched(almanac.seeds, 2)]
     for map in almanac.maps:
         numbers = map.map_numbers(numbers)
-    print("len num:", len(numbers))
-    print(sorted(numbers))
     smallest = min(numbers)[0]
     return smallest
 
