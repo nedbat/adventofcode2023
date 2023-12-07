@@ -22,37 +22,12 @@ CARD_STRENGTH = {card: num for num, card in enumerate("23456789TJQKA")}
 
 TYPES = {
     (5,): "Zfive",
-    (
-        1,
-        4,
-    ): "Yfour",
-    (
-        2,
-        3,
-    ): "Xfull",
-    (
-        1,
-        1,
-        3,
-    ): "Wthree",
-    (
-        1,
-        2,
-        2,
-    ): "Vpair",
-    (
-        1,
-        1,
-        1,
-        2,
-    ): "Upair",
-    (
-        1,
-        1,
-        1,
-        1,
-        1,
-    ): "Thigh",
+    (1,4,): "Yfour",
+    (2,3,): "Xfull",
+    (1,1,3,): "Wthree",
+    (1,2,2,): "Vpair",
+    (1,1,1,2,): "Upair",
+    (1,1,1,1,1,): "Thigh",
 }
 
 
@@ -144,6 +119,7 @@ def multi_replace(s, olds, news):
         s = s.replace(old, new)
     return s
 
+# Part 2, first code: find real hands that jokers could represent.
 
 @dataclass
 class Hand2:
@@ -190,3 +166,58 @@ def test_part2():
 if __name__ == "__main__":
     answer = part2(file_lines("day07_input.txt"))
     print(f"Part 2: {answer = }")
+
+
+# Part 2, second code: no need to find real hands, just use counts.
+
+TYPES_2B = {
+    (0, (5,)): "Zfive",
+    (5, (5,)): "Zfive",
+    (0, (1,4,)): "Yfour",
+    (1, (1,4,)): "Zfive",
+    (4, (1,4,)): "Zfive",
+    (1, (1,1,3,)): "Yfour",
+    (0, (2,3,)): "Xfull",
+    (2, (2,3,)): "Zfive",
+    (3, (2,3,)): "Zfive",
+    (0, (1,1,3,)): "Wthree",
+    (1, (1,1,3,)): "Yfour",
+    (3, (1,1,3,)): "Yfour",
+    (0, (1,2,2,)): "Vpair",
+    (1, (1,2,2,)): "Xfull",
+    (2, (1,2,2,)): "Yfour",
+    (0, (1,1,1,2,)): "Upair",
+    (1, (1,1,1,2,)): "Wthree",
+    (2, (1,1,1,2,)): "Wthree",
+    (0, (1,1,1,1,1,)): "Thigh",
+    (1, (1,1,1,1,1,)): "Upair",
+}
+
+@dataclass
+class Hand2b:
+    cards: str
+    bid: int = 0
+
+    def __post_init__(self):
+        jokers = self.cards.count("J")
+        real_counts = tuple(sorted(collections.Counter(self.cards).values()))
+        self.type = TYPES_2B[(jokers, real_counts)]
+
+    def __lt__(self, other):
+        if self.type == other.type:
+            strengths1 = [CARD_STRENGTH2[c] for c in self.cards]
+            strengths2 = [CARD_STRENGTH2[c] for c in other.cards]
+            return strengths1 < strengths2
+        else:
+            return self.type < other.type
+
+def part2b(lines):
+    return part1(lines, klass=Hand2b)
+
+def test_part2b():
+    assert part2(TEST_INPUT) == 5905
+
+
+if __name__ == "__main__":
+    answer = part2b(file_lines("day07_input.txt"))
+    print(f"Part 2b: {answer = }")
