@@ -155,20 +155,20 @@ class Hand2:
         nonj = list({c for c in self.cards if c != "J"})
         match jokers:
             case 5:
-                self.best = Hand("AAAAA")
+                best = Hand("AAAAA")
             case 4:
-                self.best = Hand(nonj.pop() * 5)
+                best = Hand(nonj[0] * 5)
             case 3:
-                self.best = Hand(self.cards.replace("J", nonj[0]))
+                best = Hand(self.cards.replace("J", nonj[0]))
             case 1 | 2:
                 candidates = []
                 for js in itertools.combinations_with_replacement(nonj, r=jokers):
                     candidates.append(Hand(multi_replace(self.cards, "J" * jokers, js)))
-                self.best = max(candidates)
+                best = max(candidates)
             case 0:
-                self.best = Hand(self.cards)
+                best = Hand(self.cards)
 
-        self.type = self.best.type
+        self.type = best.type
 
     def __lt__(self, other):
         if self.type == other.type:
