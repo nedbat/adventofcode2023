@@ -15,15 +15,15 @@ def differences(nums):
     for a, b in zip(nums, nums[1:]):
         yield b - a
 
-def next_value(nums, factor=1):
+def next_value(nums):
     sequences = [list(nums)]
     while set(sequences[-1]) != {0}:
         sequences.append(list(differences(sequences[-1])))
     sequences.reverse()
     sequences[0].append(0)
     for seq1, seq2 in zip(sequences, sequences[1:]):
-        seq2.append(seq1[-1] + factor * seq2[-1])
-    return factor * sequences[-1][-1]
+        seq2.append(seq1[-1] + seq2[-1])
+    return sequences[-1][-1]
 
 def parse_sequences(lines):
     return [list(map(int, line.split())) for line in lines]
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 def part2(lines):
     seqs = parse_sequences(lines)
     seqs = [list(reversed(seq)) for seq in seqs]
-    return sum(next_value(seq, -1) for seq in seqs)
+    return sum(next_value(seq) for seq in seqs)
 
 
 def test_part2():
