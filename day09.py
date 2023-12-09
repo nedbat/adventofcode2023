@@ -1,5 +1,7 @@
 # https://adventofcode.com/2023/day/09
 
+import itertools
+
 from helpers import *
 
 TEST_INPUT = string_lines(
@@ -12,7 +14,7 @@ TEST_INPUT = string_lines(
 
 
 def differences(nums):
-    for a, b in zip(nums, nums[1:]):
+    for a, b in itertools.pairwise(nums):
         yield b - a
 
 def next_value(nums):
@@ -21,7 +23,7 @@ def next_value(nums):
         sequences.append(list(differences(sequences[-1])))
     sequences.reverse()
     sequences[0].append(0)
-    for seq1, seq2 in zip(sequences, sequences[1:]):
+    for seq1, seq2 in itertools.pairwise(sequences):
         seq2.append(seq1[-1] + seq2[-1])
     return sequences[-1][-1]
 
