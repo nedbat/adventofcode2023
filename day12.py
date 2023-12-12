@@ -26,7 +26,7 @@ def parse(lines):
         yield springs, sizes
 
 def check_record(springs, sizes):
-    spring_chunks = [chunk for chunk in re.split(r"\.+", springs) if chunk]
+    spring_chunks = re.findall(r"#+", springs)
     return list(map(len, spring_chunks)) == sizes
 
 @pytest.mark.parametrize("record", [
@@ -108,8 +108,7 @@ if __name__ == "__main__":
     answer = part1(file_lines("day12_input.txt"))
     print(f"Part 1: {answer = }")
 
-
-def part2(lines):
+def part2_bad(lines):
     # The simple way to do it, will never finish.
     # The test input didn't finish in 10 minutes.
     total = 0
@@ -119,6 +118,73 @@ def part2(lines):
         total += count_possibilities(springs, sizes)
     return total
 
+def check_partial_record(springs, sizes):
+    known_springs = springs.partition("?")[0]
+    spring_chunks = re.findall(r"#+", known_springs)
+    return all(len(chunk) <= size for chunk, size in zip(spring_chunks, sizes))
+
+
+@pytest.mark.parametrize("record", [
+    "#.#.?## 1,1,3",
+    ".#...#....#?#. 1,1,3",
+    ".#.###.#.##?### 1,3,1,6",
+])
+def test_check_partial_record_good(record):
+    springs, sizes = next(parse([record]))
+    assert check_partial_record(springs, sizes)
+
+@pytest.mark.parametrize("record", [
+    "###.?### 1,1,3",
+    ".##?..#....###. 1,2,3",
+    ".#.###.##.?##.## 1,3,1,6",
+])
+def test_check_partial_record_bad(record):
+    springs, sizes = next(parse([record]))
+    assert not check_partial_record(springs, sizes)
+
+
+def count_possibilities2(springs, sizes):
+    #print(f"\ncount_possibilities2{springs, sizes}")
+    def inner_count(springs, hashes, dots, depth=""):
+        #print(f"{depth}inner_count{springs, hashes, dots}")
+        total = 0
+        if hashes == 0 and dots == 0:
+            total += int(check_record(springs, sizes))
+        else:
+            if hashes:
+                new_springs = springs.replace("?", "#", 1)
+                if check_partial_record(new_springs, sizes):
+                    total += inner_count(new_springs, hashes - 1, dots, depth+"  ")
+            if dots:
+                new_springs = springs.replace("?", ".", 1)
+                if check_partial_record(new_springs, sizes):
+                    total += inner_count(new_springs, hashes, dots - 1, depth+"  ")
+        #print(f"{depth} -> {total = }")
+        return total
+
+    unknown = springs.count("?")
+    missing_damaged = sum(sizes) - springs.count("#")
+    return inner_count(springs, missing_damaged, unknown - missing_damaged)
+
+
+def parse2(lines):
+    for springs, sizes in parse(lines):
+        yield "?".join([springs] * 5), sizes * 5
+
+@pytest.mark.parametrize("record, possibilties", [
+    ("???.### 1,1,3", 1),
+    ("????.######..#####. 1,6,5", 2500),
+    ("????.#...#... 4,1,1", 16),
+])
+def test_count_possibilities2(record, possibilties):
+    springs, sizes = next(parse2([record]))
+    assert count_possibilities2(springs, sizes) == possibilties
+
+def part2(lines):
+    total = 0
+    for springs, sizes in parse2(lines):
+        total += count_possibilities2(springs, sizes)
+    return total
 
 
 def test_part2():
