@@ -109,15 +109,23 @@ if __name__ == "__main__":
     print(f"Part 1: {answer = }")
 
 
-# def part2(lines):
-#     ...
-#
-#
-# def test_part2():
-#     assert part2(TEST_INPUT) == 123456
-#
-#
-#
-# if __name__ == "__main__":
-#     answer = part2(file_lines("day12_input.txt"))
-#     print(f"Part 2: {answer = }")
+def part2(lines):
+    # The simple way to do it, will never finish.
+    # The test input didn't finish in 10 minutes.
+    total = 0
+    for springs, sizes in parse(lines):
+        springs *= 5
+        sizes *= 5
+        total += count_possibilities(springs, sizes)
+    return total
+
+
+
+def test_part2():
+    assert part2(TEST_INPUT) == 525152
+
+
+
+if __name__ == "__main__":
+    answer = part2(file_lines("day12_input.txt"))
+    print(f"Part 2: {answer = }")
