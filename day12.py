@@ -1,5 +1,6 @@
 # https://adventofcode.com/2023/day/12
 
+import functools
 import itertools
 import re
 
@@ -145,7 +146,8 @@ def test_check_partial_record_bad(record):
 
 def count_possibilities2(springs, sizes):
     #print(f"\ncount_possibilities2{springs, sizes}")
-    def inner_count(springs, hashes, dots, depth=""):
+    @functools.cache
+    def inner_count(springs, hashes, dots):
         #print(f"{depth}inner_count{springs, hashes, dots}")
         total = 0
         if hashes == 0 and dots == 0:
@@ -154,11 +156,11 @@ def count_possibilities2(springs, sizes):
             if hashes:
                 new_springs = springs.replace("?", "#", 1)
                 if check_partial_record(new_springs, sizes):
-                    total += inner_count(new_springs, hashes - 1, dots, depth+"  ")
+                    total += inner_count(new_springs, hashes - 1, dots)
             if dots:
                 new_springs = springs.replace("?", ".", 1)
                 if check_partial_record(new_springs, sizes):
-                    total += inner_count(new_springs, hashes, dots - 1, depth+"  ")
+                    total += inner_count(new_springs, hashes, dots - 1)
         #print(f"{depth} -> {total = }")
         return total
 
